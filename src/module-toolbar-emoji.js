@@ -58,32 +58,37 @@ function fn_updateRange(quill){
   return range;
 }
 
+function fn_clamp(x, [min, max]) {
+    if (x < min) {
+        return min
+    }
+    if (x > max) {
+        return max
+    }
+    return x
+}
+
 function fn_showEmojiPalatte(quill) {
-  let ele_emoji_area = document.createElement('div');
-  let toolbar_container = document.querySelector('.ql-toolbar');
   let range = quill.getSelection();
-  const atSignBounds = quill.getBounds(range.index);
+  const cursor_rect = quill.getBounds(range.index);
+  const palette_max_left = quill.container.offsetWidth - 250; //palette max width is 250
+  const palette_left = fn_clamp(Math.ceil(cursor_rect.left), [0, palette_max_left]);
+  const palette_top =  Math.ceil(cursor_rect.top + cursor_rect.height + 10);
 
-  quill.container.appendChild(ele_emoji_area);
-  let paletteMaxPos = atSignBounds.left + 250;//palette max width is 250
-  ele_emoji_area.id = 'emoji-palette';
-  ele_emoji_area.style.top = 10 + atSignBounds.top + atSignBounds.height + "px";
-  if (paletteMaxPos > quill.container.offsetWidth) {
-    ele_emoji_area.style.left = (atSignBounds.left - 250)+ "px";
-  }
-  else{
-    ele_emoji_area.style.left = atSignBounds.left + "px";
-  }
-
+  let palette = document.createElement('div');
+  palette.id = 'emoji-palette';
+  palette.style.left = palette_left + "px";
+  palette.style.top = palette_top + "px";
+  quill.container.appendChild(palette);
 
   let tabToolbar = document.createElement('div');
   tabToolbar.id="tab-toolbar";
-  ele_emoji_area.appendChild(tabToolbar);
+  palette.appendChild(tabToolbar);
 
   //panel
   let panel = document.createElement('div');
   panel.id="tab-panel";
-  ele_emoji_area.appendChild(panel);
+  palette.appendChild(panel);
 
   var emojiType = [
     {'type':'p','name':'people','content':'<div class="i-people"></div>'},
@@ -120,6 +125,22 @@ function fn_showEmojiPalatte(quill) {
     })
   });
   fn_emojiPanelInit(panel,quill);
+
+  requestAnimationFrame(() => {
+    const palette_height = palette.offsetHeight;
+    const min_editor_height = palette_top + palette_height;
+    const editor_height = quill.container.offsetHeight;
+    if (editor_height < min_editor_height) {
+      const alt_palette_top = Math.floor(cursor_rect.top - (palette_height + 10));
+      if (alt_palette_top >= 0) {
+        // Display the palette above the cursor ...
+        palette.style.top = alt_palette_top + "px";
+      } else {
+        // Enlarge the editor, so that the palette is fully visible ...
+        quill.container.style.minHeight = min_editor_height + "px";
+      }
+    }
+  })
 }
 
 function fn_emojiPanelInit(panel,quill){
