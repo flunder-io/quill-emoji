@@ -70,6 +70,11 @@ function fn_clamp(x, [min, max]) {
 
 function fn_showEmojiPalatte(quill) {
   let range = quill.getSelection();
+  if (!range) {
+    // Quill editor is not focused, focus it ...
+    quill.focus();
+    range = quill.getSelection();
+  }
   const cursor_rect = quill.getBounds(range.index);
   const palette_max_left = quill.container.offsetWidth - 250; //palette max width is 250
   const palette_left = fn_clamp(Math.ceil(cursor_rect.left), [0, palette_max_left]);
