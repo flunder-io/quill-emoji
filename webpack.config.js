@@ -1,7 +1,6 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 const config = {
   entry: './src/quill-emoji.js',
@@ -11,6 +10,7 @@ const config = {
     library: "QuillEmoji",
     libraryTarget: "umd"
   },
+  devtool: "source-map",
   target: "web",
   mode: "production",
   externals: {
@@ -27,13 +27,22 @@ const config = {
         test: /\.scss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          'css-loader',
-          'resolve-url-loader',
-          { 
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
+            }
+          },
+          {
+            loader: 'resolve-url-loader',
+            options: {
+              sourceMap: true,
+            }
+          },
+          {
             loader: 'sass-loader',
             options: {
               sourceMap: true,
-              sourceMapContents: false
             }
           },
         ],
@@ -50,42 +59,24 @@ const config = {
           }
         ],
       },
-      {
-        test: /\.js$/,
-        include: [
-          path.resolve(__dirname, "src/")
-        ],
-        exclude: /(node_modules)/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [['@babel/preset-env', { modules: false }]]
-          }
-        }
-      }
     ]
   },
   optimization: {
     minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          compress: {
-            warnings: false,
-            conditionals: true,
-            unused: true,
-            comparisons: true,
-            sequences: true,
-            dead_code: true,
-            evaluate: true,
-            join_vars: true,
-            if_return: true
-          },
+      new TerserPlugin({
+        parallel: true,
+        sourceMap: true,
+        terserOptions: {
+          ecma: 7,
           output: {
-            comments: false
-          }
+            comments: false,
+            max_line_len: 100,
+          },
+          keep_classnames: true,
+          keep_fnames: true,
+          safari10: true, // ... work around Safari 10/11 bugs
         }
       }),
-      new OptimizeCSSAssetsPlugin({})
     ]
   },
   plugins: [
