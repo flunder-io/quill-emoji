@@ -1,4 +1,5 @@
 import Quill from 'quill';
+import emojiList from "./emoji-list";
 import EmojiBlot from './format-emoji-blot';
 import ShortNameEmoji from './module-emoji';
 import ToolbarEmoji from './module-toolbar-emoji';
@@ -12,4 +13,4 @@ Quill.register({
     'modules/emoji-textarea': TextAreaEmoji
   }, true);  
 
-export default { EmojiBlot, ShortNameEmoji, ToolbarEmoji, TextAreaEmoji };
+export { EmojiBlot, ShortNameEmoji, ToolbarEmoji, TextAreaEmoji, emojiList };
