@@ -1,6 +1,6 @@
 {
   "name": "quill-emoji",
-  "version": "0.1.7-cling.dev",
+  "version": "0.1.7-cling.2",
   "description": "Quill Extension for Emoji Selection",
   "main": "dist/quill-emoji.js",
   "devDependencies": {
